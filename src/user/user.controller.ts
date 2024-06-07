@@ -1,13 +1,17 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, Post, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Res } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { Response } from "express";
-import { User } from "./user.interface";
+import { ExerciseService } from "../exercise/exercise.service";
+import { Exercise } from "../exercise/exercise.interface";
+import { validate } from "typia";
+
 
 @Controller('/api/users/')
 export class UserController {
 
   constructor(
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly exerciseService: ExerciseService
   ) {}
 
   @Get()
@@ -18,8 +22,8 @@ export class UserController {
 
   @Post()
   @HttpCode(HttpStatus.BAD_REQUEST)
-  async missingField() {
-    return { error: "Missing required fields: username" }
+  async missingFields(fields) {
+    return { error: `Missing required fields: ${fields}` };
   }
 
   @Post(':username')
@@ -28,9 +32,10 @@ export class UserController {
     @Res({ passthrough: true }) res: Response
   )  {
 
+
     if (!username) {
        res.status(HttpStatus.BAD_REQUEST)
-       return this.missingField()
+       return this.missingFields('username')
     }
 
     const user = this.userService.createUser(username)
@@ -38,4 +43,25 @@ export class UserController {
       .send(user)
 
   }
+
+
+  @Post(":username/exercises")
+  async postExercise(
+    @Param("username") username: string,
+    @Res({ passthrough: true }) res: Response,
+    @Body() body?: Exercise
+  ) {
+
+
+    const validation = validate<Exercise>(body);
+    if (!validation.success) {
+      res.status(HttpStatus.BAD_REQUEST)
+        .send({ error: validation.errors });
+    }
+
+    const user = this.userService.createUser(username);
+    return res.status(HttpStatus.CREATED)
+      .send(user);
+  }
+
 }
