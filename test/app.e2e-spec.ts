@@ -1,7 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { Test, TestingModule } from "@nestjs/testing";
+import { INestApplication } from "@nestjs/common";
+import * as request from "supertest";
+import { AppModule } from "./../src/app.module";
+
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -15,10 +16,23 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it("/api/users (POST) should return error bad request", () => {
     return request(app.getHttpServer())
-      .get('/')
+      .post("/api/users")
+      .expect(400)
+      .expect({ error: "Missing required fields: username" });
+  });
+
+  it("/api/users (POST) should return 200 and user id", () => {
+    return request(app.getHttpServer())
+      .post("/api/users")
       .expect(200)
-      .expect('Hello World!');
+      .send({
+        username: "yo"
+      })
+      .expect({
+        username: "yo",
+        _id: 1
+      });
   });
 });
