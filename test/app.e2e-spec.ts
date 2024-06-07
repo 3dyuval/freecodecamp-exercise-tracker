@@ -18,18 +18,15 @@ describe('AppController (e2e)', () => {
 
   it("/api/users (POST) should return error bad request", () => {
     return request(app.getHttpServer())
-      .post("/api/users")
+      .post("/api/users/")
       .expect(400)
       .expect({ error: "Missing required fields: username" });
   });
 
-  it("/api/users (POST) should return 200 and user id", () => {
+  it("/api/users (POST) should return 201 and user id", () => {
     return request(app.getHttpServer())
-      .post("/api/users")
-      .expect(200)
-      .send({
-        username: "yo"
-      })
+      .post("/api/users/yo")
+      .expect(201)
       .expect({
         username: "yo",
         _id: 1
