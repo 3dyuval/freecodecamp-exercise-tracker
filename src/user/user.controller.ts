@@ -53,10 +53,11 @@ export class UserController {
   ) {
 
 
-    const validation = validate<Exercise>(body);
-    if (!validation.success) {
+    const validation = this.exerciseService.validateExercise(body);
+
+    if (validation !== true) {
       res.status(HttpStatus.BAD_REQUEST)
-        .send({ error: validation.errors });
+        .send(validation);
     }
 
     const user = this.userService.createUser(username);

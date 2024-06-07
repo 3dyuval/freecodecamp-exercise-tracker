@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 import { User } from "./user.interface";
+
 
 @Injectable()
 export class UserService {
 
   users: User[] = []
+
 
 createUser(username: string): User {
     const user = {
